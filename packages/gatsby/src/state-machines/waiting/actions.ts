@@ -33,13 +33,8 @@ export const extractQueries = sendParent<IWaitingContext, AnyEventObject>(
   `EXTRACT_QUERIES_NOW`
 )
 
-export const extractServerData = sendParent<IWaitingContext, AnyEventObject>(
-  `EXTRACT_SERVER_DATA_NOW`
-)
-
 export const waitingActions: ActionFunctionMap<IWaitingContext, AnyAction> = {
   addNodeMutation,
   extractQueries,
-  extractServerData,
   callApi,
 }
