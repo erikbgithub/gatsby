@@ -219,17 +219,26 @@ class DevLoader extends BaseLoader {
   }
 
   handleStaleServerDataMessage() {
+    const activePath = normalizePagePath(location.pathname)
+
     // For now just invalidate every single page with serverData
     for (const [key, value] of this.pageDataDb) {
       if (value?.payload?.result?.serverData) {
         this.markAsStale(key)
       }
+      if (activePath === normalizePagePath(key)) {
+        this.reFetchServerData(activePath)
+      }
     }
-    this.loadPageDataJson(location.pathname).then(data => {
-      console.log(`new server data`, data)
-      const updated = this.updatePageData(data.pagePath, data.payload.result)
-      if (updated) {
-        ___emitter.emit(`pageQueryResult`, data.payload.result)
+  }
+
+  reFetchServerData(pagePath) {
+    this.fetchPageDataJson({ pagePath }).then(data => {
+      const updated = this.updatePageData(data.pagePath, data.payload)
+      // SSR could be slow, so we should only emit serverDataResult
+      // when still on the same page
+      if (updated && pagePath === normalizePagePath(location.pathname)) {
+        ___emitter.emit(`serverDataResult`, data.payload)
       }
     })
   }
